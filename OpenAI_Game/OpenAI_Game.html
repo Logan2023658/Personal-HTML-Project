@@ -114,9 +114,9 @@ function createYellowBlock() {
     function handleKeyboard(event) {
         if (event.type === "keydown") {
             if (event.key === "ArrowRight") {
-                playerXVelocity = 10;
+                playerXVelocity = 2.75;
             } else if (event.key === "ArrowLeft") {
-                playerXVelocity = -10;
+                playerXVelocity = -2.75;
             } else if (event.key === "z" || event.key === " ") {
                 if (playerY == 550) playerYVelocity = jumpVelocity;
             } else if (event.key === "x") {
