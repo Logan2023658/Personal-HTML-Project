@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #screen {
+        width: 800px;
+        height: 600px;
+        background-color: #ccc;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    #screen::before{
+        content:'';
+        display:block;
+        position:absolute;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:1px;
+        background-color:black;
+    }
+    #player {
+        width: 50px;
+        height: 50px;
+        background-color: red;
+        position: absolute;
+    }
+    .yellow-block {
+        width: 50px;
+        height: 50px;
+        background-color: yellow;
+        position: absolute;
+        top: 50%;
+    }
+  </style>
+</head>
+<body>
+  <div id="screen">
+    <div id="player"></div>
+  </div>
+  <script>
+    let player = document.querySelector("#player");
+    let screen = document.querySelector("#screen");
+    document.addEventListener("keydown", handleKeyboard);
+    document.addEventListener("keyup", handleKeyboard);
+    let playerX = 0;
+    let playerY = 550;
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
+    let playerXVelocity = 0;
+    let gravity = 0.5;
+    let jumpVelocity = -15
+    let playerYVelocity = 0;
+    let yellowBlockCount = 0;
+    let projectile;
+
+    function updatePlayerPosition() {
+    playerX += playerXVelocity;
+    playerY += playerYVelocity;
+    playerYVelocity += gravity;
+    if (playerY > 550) {
+        playerY = 550;
+        playerYVelocity = 0;
+    }
+    player.style.left = playerX + "px";
+    player.style.top = playerY + "px";
+    if(projectile) checkForCollision();
+}
+
+function createYellowBlock() {
+        if (yellowBlockCount >= 5) return;
+        yellowBlockCount++;
+        let block = document.createElement("div");
+        block.classList.add("yellow-block");
+        block.style.left = "-50px";
+        let randomY = Math.random() * (550 - 50) + 50;
+        block.style.top = randomY + "px";
+        screen.appendChild(block);
+
+        let animation = block.animate([
+            { left: "-50px" },
+            { left: "850px" }
+        ], {
+            duration: 3000,
+            iterations: 1,
+            onfinish: () => {
+                yellowBlockCount--;
+                block.remove();
+            }
+        });
+    }
+    function updatePlayerPosition() {
+        if(projectile){
+          checkForCollision();
+        }
+        playerYVelocity += gravity;
+        if (playerY + playerYVelocity > 550) {
+            playerYVelocity = 0;
+            playerY = 550;
+        } else {
+            playerY += playerYVelocity;
+        }
+        playerX += playerXVelocity;
+        player.style.left = playerX + "px";
+        player.style.top = playerY + "px";
+    }
+
+
+    setInterval(updatePlayerPosition, 10);
+    setInterval(createYellowBlock, 1000);
+
+    function handleKeyboard(event) {
+        if (event.type === "keydown") {
+            if (event.key === "ArrowRight") {
+                playerXVelocity = 10;
+            } else if (event.key === "ArrowLeft") {
+                playerXVelocity = -10;
+            } else if (event.key === "z" || event.key === " ") {
+                if (playerY == 550) playerYVelocity = jumpVelocity;
+            } else if (event.key === "x") {
+                if(!projectile){
+                  projectile = createProjectile();
+                }
+            }
+        } else if (event.type === "keyup") {
+            if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+                playerXVelocity = 0;
+            }
+        }
+    }
+    function createProjectile() {
+        let proj = document.createElement("div");
+        proj.style.width = "10px";
+        proj.style.height = "10px";
+        proj.style.backgroundColor = "blue";
+        proj.style.position = "absolute";
+        proj.style.left = playerX + 50 + "px";
+        proj.style.top = playerY + 20 + "px";
+        screen.appendChild(proj);
+
+        proj.animate([
+            { left: "850px" }
+        ], {
+            duration: 500,
+            iterations: 1,
+            onfinish: () => {
+                proj.remove();
+                projectile = null;
+            }
+        });
+        return proj;
+   
+        function checkForCollision() {
+        let projRect = projectile.getBoundingClientRect();
+        let yellowBlocks = document.querySelectorAll(".yellow-block");
+        for (let i = 0; i < yellowBlocks.length; i++) {
+            let yellowBlockRect = yellowBlocks[i].getBoundingClientRect();
+            if (projRect.left > yellowBlockRect.left && projRect.left < yellowBlockRect.right && projRect.top > yellowBlockRect.top && projRect.top < yellowBlockRect.bottom) {
+                yellowBlocks[i].remove();
+                yellowBlockCount--;
+                projectile.remove();
+                projectile = null;
+            }
+        }
+    }
+    
+    }
+
+  </script>
+</body>
+</html>
