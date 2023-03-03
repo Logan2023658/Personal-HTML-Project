@@ -24,13 +24,13 @@
     #player {
         width: 50px;
         height: 50px;
-        background-color: red;
+        background-color: rgb(0, 100, 255);
         position: absolute;
     }
     .yellow-block {
         width: 50px;
         height: 50px;
-        background-color: yellow;
+        background-color: rgb(0, 0, 0);
         position: absolute;
         top: 50%;
     }
@@ -57,41 +57,6 @@
     let projectile;
 
     function updatePlayerPosition() {
-    playerX += playerXVelocity;
-    playerY += playerYVelocity;
-    playerYVelocity += gravity;
-    if (playerY > 550) {
-        playerY = 550;
-        playerYVelocity = 0;
-    }
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
-    if(projectile) checkForCollision();
-}
-
-function createYellowBlock() {
-        if (yellowBlockCount >= 5) return;
-        yellowBlockCount++;
-        let block = document.createElement("div");
-        block.classList.add("yellow-block");
-        block.style.left = "-50px";
-        let randomY = Math.random() * (550 - 50) + 50;
-        block.style.top = randomY + "px";
-        screen.appendChild(block);
-
-        let animation = block.animate([
-            { left: "-50px" },
-            { left: "850px" }
-        ], {
-            duration: 3000,
-            iterations: 1,
-            onfinish: () => {
-                yellowBlockCount--;
-                block.remove();
-            }
-        });
-    }
-    function updatePlayerPosition() {
         if(projectile){
           checkForCollision();
         }
@@ -105,11 +70,44 @@ function createYellowBlock() {
         playerX += playerXVelocity;
         player.style.left = playerX + "px";
         player.style.top = playerY + "px";
+        
+        let yellowBlocks = document.querySelectorAll(".yellow-block");
+        for (let i = 0; i < yellowBlocks.length; i++) {
+            let block = yellowBlocks[i];
+            let blockRect = block.getBoundingClientRect();
+            if (blockRect.right <= 0) {
+                block.style.left = "800px";
+            } else {
+                block.style.left = (blockRect.left - 3) + "px";
+            }
+        }
     }
-
 
     setInterval(updatePlayerPosition, 10);
     setInterval(createYellowBlock, 1000);
+
+    function createYellowBlock() {
+        if (yellowBlockCount >= 5) return;
+        yellowBlockCount++;
+        let block = document.createElement("div");
+        block.classList.add("yellow-block");
+        block.style.left = "800px";
+        let randomY = Math.random() * (550 - 50) + 50;
+        block.style.top = randomY + "px";
+        screen.appendChild(block);
+
+        let animation = block.animate([
+            { left: "-50px" },
+            { left: "800px" }
+        ], {
+            duration: 2500,
+            iterations: 1,
+            onfinish: () => {
+                yellowBlockCount--;
+                block.remove();
+            }
+        });
+    }
 
     function handleKeyboard(event) {
         if (event.type === "keydown") {
@@ -134,7 +132,7 @@ function createYellowBlock() {
         let proj = document.createElement("div");
         proj.style.width = "10px";
         proj.style.height = "10px";
-        proj.style.backgroundColor = "blue";
+        proj.style.backgroundColor = "yellow";
         proj.style.position = "absolute";
         proj.style.left = playerX + 50 + "px";
         proj.style.top = playerY + 20 + "px";
